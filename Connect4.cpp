@@ -30,3 +30,31 @@ gamePiece::~gamePiece{
 	//nothing to deallocate
 }
 
+//--------------------Singular Column (6 pieces)--------------
+class boardColumn{
+	private:
+		bool full;	//True if the row is full
+		vector<gamePiece> column;
+	public:
+		boardColumn();
+		~boardColumn();
+		void checkFull();	//change full if column has 6 members >0
+};
+
+boardColumn::boardColumn(){
+	full=0;
+}
+
+boardColumn::~boardColumn(){
+	//deallocate
+}
+
+void boardColumn::checkFull(){
+	
+}
+
+//--------------------Main Program----------------------------
+int main(int argc, char* argv[]){
+	
+	return 0;
+}
