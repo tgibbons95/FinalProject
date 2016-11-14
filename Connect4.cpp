@@ -152,7 +152,7 @@ void gameBoard::makeMove(int player, int column){
 			board[c].column[r].value= player;	//change that one space
 			board[c].length++;	//one more piece added
 			//check for game over (not implemented)
-			gameOver(r,c)
+			gameOver(r,c);
 		}
 		else
 			cout << "\nColumn is full";
@@ -163,12 +163,12 @@ void gameBoard::makeMove(int player, int column){
 
 void gameBoard::gameOver(int row, int col){
 	//which player to look for win
-	player=board[col].column[row].value;
+	int player=board[col].column[row].value;
 	//what area to check for win
-	rowRangeLow=(row>=1)?(row:1);
-	rowRangeHigh=(row<=6)?(row:6);
-	columnRangeLow=(col>=1)?(col:1);
-	columnRangeHigh=(col<=7)?(col:7);
+	int rowRangeLow=(row>=1)?row:1;
+	int rowRangeHigh=(row<=6)?row:6;
+	int columnRangeLow=(col>=1)?col:1;
+	int columnRangeHigh=(col<=7)?col:7;
 	
 	int count=0;	//how many in a row
 	int x=0;		//bump indices
@@ -182,8 +182,10 @@ void gameBoard::gameOver(int row, int col){
 		count++;
 		x--;
 	}
-	if(count>=4)
-		
+	if(count>=4){
+			cout << "\nPlayer " << player << " wins!" << endl;
+			full=true;
+	}
 	//four down(no need to check up)
 	//four diagonal	positive slope
 	//four diagonal negative slope
