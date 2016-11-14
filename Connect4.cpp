@@ -44,7 +44,7 @@ class boardColumn{
 	//friend class gameboard;
 	
 	public:
-		bool full;	//True if the row is full
+		bool fullColumn;	//True if the row is full
 		int length;	//how many pieces are in column
 		vector<gamePiece> column;
 	//public:
@@ -54,7 +54,7 @@ class boardColumn{
 };
 
 boardColumn::boardColumn(){
-	full=0;
+	fullColumn=false;
 	length=0;
 	int i;
 	for(i=0; i<6; i++){
@@ -77,8 +77,9 @@ bool boardColumn::checkFull(){
 //--------------------Singular Board (7 columns)--------------
 class gameBoard{
 	public:
-		bool full;	//True if board is full
+		bool fullBoard;	//True if board is full
 		vector<boardColumn> board;
+		bool gameFinished;
 	//public:
 		gameBoard();
 		~gameBoard();
@@ -87,10 +88,12 @@ class gameBoard{
 		char symbol(int);
 		void makeMove(int,int);	//take in player and move
 		void gameOver(int,int);	//take indices of last move
+		bool across(int, int); //take indices true if 4 in a row across
 };
 
 gameBoard::gameBoard(){
-	full=0;
+	fullBoard=false;
+	gameFinished=false;
 	int i;
 	for(i=0; i<7; i++){
 		boardColumn current;	//create empty column
@@ -103,30 +106,27 @@ gameBoard::~gameBoard(){
 }
 
 bool gameBoard::checkFull(){
-	full=true;	//assume board full
 	for(int i=0; i<7; i++){
-		if(board[i].full!=1)	//if column found not full exit
+		if(board[i].fullColumn!=1)	//if column found not full exit
 			return false;
 	}
+	return true;	//if all column full, board is full return true
 }
 
 void gameBoard::displayBoard(){
 	int r, c;
-    system(ERASE);
+    system(ERASE);	//system dependent and can remove but looks nice
     cout << "  +---+---+---+---+---+---+---+\n";
     
-    for (r=0; r<6; r++)
-    {
+    for (r=0; r<6; r++){
         cout << "  |";
-        for (c=0; c<7; c++)
-        {
+        for (c=0; c<7; c++){
             cout << " " << symbol(board[c].column[r].value) << " |";
         }
         cout << "\n"
 			 << "  +---+---+---+---+---+---+---+\n";
     }
-    
-    cout << "    1   2   3   4   5   6   7\n";
+    cout << "    1   2   3   4   5   6   7\n";	//print column nums
 }
 
 char gameBoard::symbol(int i) {
@@ -152,6 +152,7 @@ void gameBoard::makeMove(int player, int column){
 			board[c].column[r].value= player;	//change that one space
 			board[c].length++;	//one more piece added
 			//check for game over (not implemented)
+			displayBoard();
 			gameOver(r,c);
 		}
 		else
@@ -162,35 +163,49 @@ void gameBoard::makeMove(int player, int column){
 }
 
 void gameBoard::gameOver(int row, int col){
+	//four across
+	if(across(row,col))
+		gameFinished=true;
+	//four down(no need to check up)
+	
+	//four diagonal	positive slope
+	
+	//four diagonal negative slope
+	
+	//Tie game
+	
+	//otherwise
+	else
+		gameFinished=false;
+}
+
+bool gameBoard::across(int row, int col){
 	//which player to look for win
 	int player=board[col].column[row].value;
 	//what area to check for win
-	int rowRangeLow=(row>=1)?row:1;
-	int rowRangeHigh=(row<=6)?row:6;
-	int columnRangeLow=(col>=1)?col:1;
-	int columnRangeHigh=(col<=7)?col:7;
-	
+	int rowRangeLow=(row-3>=0)?row-3:0;
+	int rowRangeHigh=(row+3<=5)?row+3:5;
+	int columnRangeLow=(col-3>=0)?col-3:0;
+	int columnRangeHigh=(col+3<=6)?col+3:6;
+
 	int count=0;	//how many in a row
 	int x=0;		//bump indices
-	//four across
-	while(board[col].column[row+x].value==player){
-		count++;
+	
+	while(col+x<=columnRangeHigh && board[col+x].column[row].value==player){
+		count++;	//count piece and pieces to right
 		x++;
 	}
-	x=0;
-	while(board[col].column[row+x].value==player){
-		count++;
-		x--;
+	x=1; //start one over to not double count move
+	while(col-x>=columnRangeLow && board[col-x].column[row].value==player){
+		count++;	//count pieces to left
+		x++;
 	}
 	if(count>=4){
 			cout << "\nPlayer " << player << " wins!" << endl;
-			full=true;
+			return true;
 	}
-	//four down(no need to check up)
-	//four diagonal	positive slope
-	//four diagonal negative slope
+	return false;
 }
-
 //--------------------Connect 4 Game---------------------
 class Connect4:public gameBoard{
 	public:
@@ -218,10 +233,11 @@ Connect4::~Connect4(){
 //--------------------Main Program----------------------------
 int main(int argc, char* argv[]){
 	//test
-	Connect4 game1;
-	int col=0;
-	game1.displayBoard();
-	bool preMoveFull=false;
+	Connect4 game1;	//initialize game
+	int col=0;		//initialize to allow into loop
+	int x=1;
+	game1.displayBoard();	//show empty board
+	bool preMoveFull=false;	//save whether column was full before move since it will be updated after
 	while(true){
 		while(col<1 || col>7 || preMoveFull){
 			cout << "\nColumn? ";
@@ -230,7 +246,11 @@ int main(int argc, char* argv[]){
 			game1.makeMove(USER1,col);
 		}
 		col=0;
-		game1.displayBoard();
+		
+		if(game1.gameFinished)
+			return 1;	//game finished
+
+		cout << "Test3";
 		while(col<1 || col>7 || preMoveFull){
 			cout << "\nColumn? ";
 			cin  >> col;
@@ -238,8 +258,10 @@ int main(int argc, char* argv[]){
 			game1.makeMove(USER2,col);
 		}
 		col=0;
-		game1.displayBoard();
+
+		if(game1.gameFinished){
+			cout << "Test2";
+			return 1;	//game finished
+		}
 	}
-	
-	return 0;
 }
