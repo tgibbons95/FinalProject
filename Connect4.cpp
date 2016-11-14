@@ -3,6 +3,10 @@
 #include <string>
 #include <vector>
 
+#include <stdlib.h>
+#define ERASE "CLS"	
+//this is to erase screen after each turn but is system dependent
+
 using namespace std;
 
 #define EMPTY 0
@@ -12,6 +16,9 @@ using namespace std;
 
 //--------------------Singular Game Piece---------------------
 class gamePiece{
+	//friend class boardColumn;
+	//friend class gameboard;
+	
 	public:
 		int value;	//value in board
 	//public:
@@ -34,14 +41,16 @@ gamePiece::~gamePiece(){
 
 //--------------------Singular Column (6 pieces)--------------
 class boardColumn{
-	private:
-		bool full;	//True if the row is full
+	//friend class gameboard;
+	
 	public:
+		bool full;	//True if the row is full
 		int length;	//how many pieces are in column
 		vector<gamePiece> column;
+	//public:
 		boardColumn();
 		~boardColumn();
-		void checkFull();	//change full if column has 6 members >0
+		bool checkFull();	//change full if column has 6 members >0
 };
 
 boardColumn::boardColumn(){
@@ -58,19 +67,22 @@ boardColumn::~boardColumn(){
 	//deallocate
 }
 
-void boardColumn::checkFull(){
-	
+bool boardColumn::checkFull(){
+	if(length==6)
+		return true;
+	else
+		return false;
 }
 
 //--------------------Singular Board (7 columns)--------------
 class gameBoard{
-	private:
+	public:
 		bool full;	//True if board is full
 		vector<boardColumn> board;
-	public:
+	//public:
 		gameBoard();
 		~gameBoard();
-		void checkFull();	//change full if all columns full
+		bool checkFull();	//change full if all columns full
 		void displayBoard();	//print board
 		char symbol(int);
 		void makeMove(int,int);	//take in player and move
@@ -89,13 +101,17 @@ gameBoard::~gameBoard(){
 	//deallocate
 }
 
-void gameBoard::checkFull(){
-	
+bool gameBoard::checkFull(){
+	full=true;	//assume board full
+	for(int i=0; i<7; i++){
+		if(board[i].full!=1)	//if column found not full exit
+			return false;
+	}
 }
 
 void gameBoard::displayBoard(){
 	int r, c;
-    
+    system(ERASE);
     cout << "  +---+---+---+---+---+---+---+\n";
     
     for (r=0; r<6; r++)
@@ -127,20 +143,28 @@ char gameBoard::symbol(int i) {
 }
 
 void gameBoard::makeMove(int player, int column){
-	int c=column-1;					//indices (r,c)
-	int r=5-board[c].length;		//num of pieces in column
-	
-	board[c].column[r].value= player;	//change that one space
-	//check for game over (not implemented)
-	board[c].length++;	//one more piece added
+	if(column>=1 && column<=7){	//error check column choice
+		int c=column-1;					//indices (r,c)
+		int r=5-board[c].length;		//num of pieces in column
+		
+		if(board[c].checkFull()==false){	//error check for full column
+			board[c].column[r].value= player;	//change that one space
+			board[c].length++;	//one more piece added
+			//check for game over (not implemented)
+		}
+		else
+			cout << "\nColumn is full";
+	}
+	else	
+		cout << "\nColumn must be 1-7";
 }
 
 //--------------------Connect 4 Game---------------------
 class Connect4:public gameBoard{
-	private:
-		gameBoard board;
+	public:
+		//gameBoard mainBoard;
 		char player1;	//'R' or 'B'
-	public:	
+	//public:	
 		Connect4();
 		~Connect4();
 		void displayMenu();	
@@ -163,11 +187,27 @@ Connect4::~Connect4(){
 int main(int argc, char* argv[]){
 	//test
 	Connect4 game1;
+	int col=0;
 	game1.displayBoard();
-	game1.makeMove(USER1,4);
-	game1.makeMove(USER2,3);
-	game1.makeMove(USER1,3);
-	game1.makeMove(USER2,3);
-	game1.displayBoard();
+	bool preMoveFull=false;
+	while(true){
+		while(col<1 || col>7 || preMoveFull){
+			cout << "\nColumn? ";
+			cin  >> col;
+			preMoveFull=game1.board[col-1].checkFull();	//column doesn't have room loop again
+			game1.makeMove(USER1,col);
+		}
+		col=0;
+		game1.displayBoard();
+		while(col<1 || col>7 || preMoveFull){
+			cout << "\nColumn? ";
+			cin  >> col;
+			preMoveFull=game1.board[col-1].checkFull();	//column doesn't have room loop again
+			game1.makeMove(USER2,col);
+		}
+		col=0;
+		game1.displayBoard();
+	}
+	
 	return 0;
 }
