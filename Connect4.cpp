@@ -250,7 +250,6 @@ int main(int argc, char* argv[]){
 		if(game1.gameFinished)
 			return 1;	//game finished
 
-		cout << "Test3";
 		while(col<1 || col>7 || preMoveFull){
 			cout << "\nColumn? ";
 			cin  >> col;
@@ -259,9 +258,7 @@ int main(int argc, char* argv[]){
 		}
 		col=0;
 
-		if(game1.gameFinished){
-			cout << "Test2";
+		if(game1.gameFinished)
 			return 1;	//game finished
-		}
 	}
 }
