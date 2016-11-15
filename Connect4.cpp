@@ -13,6 +13,7 @@ using namespace std;
 #define USER1 1
 #define USER2 2
 #define CPU	  2
+#define CPUMOVE rand()%7+1
 
 //--------------------Singular Game Piece---------------------
 class gamePiece{
@@ -154,9 +155,8 @@ void gameBoard::makeMove(int player, int column){
 		if(board[c].checkFull()==false){	//error check for full column
 			board[c].column[r].value= player;	//change that one space
 			board[c].length++;	//one more piece added
-			//check for game over (not implemented)
 			displayBoard();
-			gameOver(r,c);
+			gameOver(r,c);	//check for game over
 		}
 		else
 			cout << "\nColumn is full";
@@ -344,10 +344,11 @@ int main(int argc, char* argv[]){
 			return 1;	//game finished
 
 		while(col<1 || col>7 || preMoveFull){
-			cout << "\nColumn? ";
-			cin  >> col;
+			//cout << "\nColumn? ";
+			//cin  >> col;
+			col=CPUMOVE;
 			preMoveFull=game1.board[col-1].checkFull();	//column doesn't have room loop again
-			game1.makeMove(USER2,col);
+			game1.makeMove(CPU,col);
 		}
 		col=0;
 
