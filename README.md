@@ -9,9 +9,6 @@ Errors and dependencies
         All the classes currently have everything public as I couldn't 
     figure out the friend class setup.
 Still needs to get done:
-    check for down victory
-    check for diagonal victory
-    check for tie game
     create option for 1 or 2 player
     create option for color preference
     create main menu
