@@ -89,6 +89,7 @@ class gameBoard{
 		void makeMove(int,int);	//take in player and move
 		void gameOver(int,int);	//take indices of last move
 		bool across(int, int); //take indices true if 4 in a row across
+		bool down(int, int); //take indices true if 4 in a row down
 };
 
 gameBoard::gameBoard(){
@@ -121,7 +122,7 @@ void gameBoard::displayBoard(){
     for (r=0; r<6; r++){
         cout << "  |";
         for (c=0; c<7; c++){
-            cout << " " << symbol(board[c].column[r].value) << " |";
+            cout << " " << symbol(board[c].column[5-r].value) << " |";
         }
         cout << "\n"
 			 << "  +---+---+---+---+---+---+---+\n";
@@ -146,7 +147,7 @@ char gameBoard::symbol(int i) {
 void gameBoard::makeMove(int player, int column){
 	if(column>=1 && column<=7){	//error check column choice
 		int c=column-1;					//indices (r,c)
-		int r=5-board[c].length;		//num of pieces in column
+		int r=board[c].length;		//num of pieces in column
 		
 		if(board[c].checkFull()==false){	//error check for full column
 			board[c].column[r].value= player;	//change that one space
@@ -166,14 +167,21 @@ void gameBoard::gameOver(int row, int col){
 	//four across
 	if(across(row,col))
 		gameFinished=true;
+	
 	//four down(no need to check up)
+	else if(down(row,col))
+		gameFinished=true;
 	
 	//four diagonal	positive slope
 	
 	//four diagonal negative slope
 	
 	//Tie game
-	
+	else if(checkFull()){
+		cout << "\nIt's a draw!" << endl;
+		gameFinished=true;
+	}
+		
 	//otherwise
 	else
 		gameFinished=false;
@@ -183,8 +191,6 @@ bool gameBoard::across(int row, int col){
 	//which player to look for win
 	int player=board[col].column[row].value;
 	//what area to check for win
-	int rowRangeLow=(row-3>=0)?row-3:0;
-	int rowRangeHigh=(row+3<=5)?row+3:5;
 	int columnRangeLow=(col-3>=0)?col-3:0;
 	int columnRangeHigh=(col+3<=6)?col+3:6;
 
@@ -206,6 +212,29 @@ bool gameBoard::across(int row, int col){
 	}
 	return false;
 }
+
+bool gameBoard::down(int row, int col){
+	//which player to look for win
+	int player=board[col].column[row].value;
+	
+	//what area to check for win
+	int rowRangeLow=(row-3>=0)?row-3:0;
+	int rowRangeHigh=(row+3<=5)?row+3:5;
+	
+	int count=0;	//how many in a column
+	int x=0;		//bump indices
+	
+	while(row-x>=rowRangeLow && board[col].column[row-x].value==player){
+		count++;	//count pieces down
+		x++;
+	}
+	if(count>=4){
+			cout << "\nPlayer " << player << " wins!" << endl;
+			return true;
+	}
+	return false;
+}
+
 //--------------------Connect 4 Game---------------------
 class Connect4:public gameBoard{
 	public:
@@ -262,3 +291,4 @@ int main(int argc, char* argv[]){
 			return 1;	//game finished
 	}
 }
+
