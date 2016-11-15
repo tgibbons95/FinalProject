@@ -90,6 +90,8 @@ class gameBoard{
 		void gameOver(int,int);	//take indices of last move
 		bool across(int, int); //take indices true if 4 in a row across
 		bool down(int, int); //take indices true if 4 in a row down
+		bool posDiagonal(int, int); //take indices true if 4 in a row diagonal(+)
+		bool negDiagonal(int, int); //take indices true if 4 in a row diagonal(-)
 };
 
 gameBoard::gameBoard(){
@@ -173,8 +175,12 @@ void gameBoard::gameOver(int row, int col){
 		gameFinished=true;
 	
 	//four diagonal	positive slope
+	else if(posDiagonal(row,col))
+		gameFinished=true;
 	
 	//four diagonal negative slope
+	else if(negDiagonal(row,col))
+		gameFinished=true;
 	
 	//Tie game
 	else if(checkFull()){
@@ -228,6 +234,64 @@ bool gameBoard::down(int row, int col){
 		count++;	//count pieces down
 		x++;
 	}
+	if(count>=4){
+			cout << "\nPlayer " << player << " wins!" << endl;
+			return true;
+	}
+	return false;
+}
+
+bool gameBoard::posDiagonal(int row, int col){
+	//which player to look for win
+	int player=board[col].column[row].value;
+	//what area to check for win
+	int columnRangeLow=(col-3>=0)?col-3:0;
+	int columnRangeHigh=(col+3<=6)?col+3:6;
+	int rowRangeLow=(row-3>=0)?row-3:0;
+	int rowRangeHigh=(row+3<=5)?row+3:5;
+	
+	int count=0;	//how many in a row
+	int x=0;		//bump indices
+	
+	while(row+x<=rowRangeHigh && col+x<=columnRangeHigh && board[col+x].column[row+x].value==player){
+		count++;	//count piece and pieces to right
+		x++;
+	}
+	x=1; //start one over to not double count move
+	while(row-x>= rowRangeLow && col-x>=columnRangeLow && board[col-x].column[row-x].value==player){
+		count++;	//count pieces to left
+		x++;
+	}
+	//cout << count;
+	if(count>=4){
+			cout << "\nPlayer " << player << " wins!" << endl;
+			return true;
+	}
+	return false;
+}
+
+bool gameBoard::negDiagonal(int row, int col){
+	//which player to look for win
+	int player=board[col].column[row].value;
+	//what area to check for win
+	int columnRangeLow=(col-3>=0)?col-3:0;
+	int columnRangeHigh=(col+3<=6)?col+3:6;
+	int rowRangeLow=(row-3>=0)?row-3:0;
+	int rowRangeHigh=(row+3<=5)?row+3:5;
+	
+	int count=0;	//how many in a row
+	int x=0;		//bump indices
+	
+	while(row+x<=rowRangeHigh && col-x>=columnRangeLow && board[col-x].column[row+x].value==player){
+		count++;	//count piece and pieces to right
+		x++;
+	}
+	x=1; //start one over to not double count move
+	while(row-x>= rowRangeLow && col+x<=columnRangeHigh && board[col+x].column[row-x].value==player){
+		count++;	//count pieces to left
+		x++;
+	}
+	//cout << count;
 	if(count>=4){
 			cout << "\nPlayer " << player << " wins!" << endl;
 			return true;
