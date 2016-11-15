@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #define ERASE "CLS"	
 //this is to erase screen after each turn but is system dependent
+//see second line of display board
 
 using namespace std;
 
