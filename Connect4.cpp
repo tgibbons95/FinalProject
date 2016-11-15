@@ -108,7 +108,7 @@ gameBoard::~gameBoard(){
 
 bool gameBoard::checkFull(){
 	for(int i=0; i<7; i++){
-		if(board[i].fullColumn!=1)	//if column found not full exit
+		if(!board[i].checkFull())	//if column found not full exit
 			return false;
 	}
 	return true;	//if all column full, board is full return true
