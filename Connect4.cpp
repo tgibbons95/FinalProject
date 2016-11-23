@@ -13,7 +13,7 @@ using namespace std;
 #define EMPTY 0
 #define USER1 1
 #define USER2 2
-#define CPU	  2
+#define CPU	  3
 #define CPUMOVE rand()%7+1
 
 //--------------------Singular Game Piece---------------------
@@ -82,6 +82,8 @@ class gameBoard{
 		bool fullBoard;	//True if board is full
 		vector<boardColumn> board;
 		bool gameFinished;
+		int numPlayers;
+		string gameOverMessage;
 	//public:
 		gameBoard();
 		~gameBoard();
@@ -104,6 +106,7 @@ gameBoard::gameBoard(){
 		boardColumn current;	//create empty column
 		board.push_back(current);	//push 7 empty columns to intialize
 	}
+	numPlayers=1;
 }
 
 gameBoard::~gameBoard(){
@@ -143,7 +146,9 @@ char gameBoard::symbol(int i) {
         case 1:
             return 'R';  
         case 2:
-            return 'B';   
+			return 'B';  
+		case 3:
+			return 'B';  
     }
     return ('?');
 }
@@ -156,8 +161,12 @@ void gameBoard::makeMove(int player, int column){
 		if(board[c].checkFull()==false){	//error check for full column
 			board[c].column[r].value= player;	//change that one space
 			board[c].length++;	//one more piece added
-			displayBoard();
 			gameOver(r,c);	//check for game over
+			if (numPlayers==1 && player==CPU) //display board for next player
+				displayBoard();
+			else if(gameFinished) //but display if game is over and cpu doesn't have to go
+				displayBoard();
+			//else no need to display for cpu
 		}
 		else
 			cout << "\nColumn is full";
@@ -185,7 +194,7 @@ void gameBoard::gameOver(int row, int col){
 	
 	//Tie game
 	else if(checkFull()){
-		cout << "\nIt's a draw!" << endl;
+		gameOverMessage="\nIt's a draw!\n";
 		gameFinished=true;
 	}
 		
@@ -214,7 +223,15 @@ bool gameBoard::across(int row, int col){
 		x++;
 	}
 	if(count>=4){
-			cout << "\nPlayer " << player << " wins!" << endl;
+			if(player!=3){
+				gameOverMessage="\nPlayer ";
+				stringstream ss;	//sequence converts num to string 
+				ss << player;
+				gameOverMessage+= ss.str();
+			}
+			else
+				gameOverMessage="CPU";	//for player=3 that is not actual player
+			gameOverMessage+=" wins!\n";
 			return true;
 	}
 	return false;
@@ -236,7 +253,15 @@ bool gameBoard::down(int row, int col){
 		x++;
 	}
 	if(count>=4){
-			cout << "\nPlayer " << player << " wins!" << endl;
+			if(player!=3){
+				gameOverMessage="\nPlayer ";
+				stringstream ss;	//sequence converts num to string 
+				ss << player;
+				gameOverMessage+= ss.str();
+			}
+			else
+				gameOverMessage="CPU";	//for player=3 that is not actual player
+			gameOverMessage+=" wins!\n";
 			return true;
 	}
 	return false;
@@ -265,7 +290,15 @@ bool gameBoard::posDiagonal(int row, int col){
 	}
 	//cout << count;
 	if(count>=4){
-			cout << "\nPlayer " << player << " wins!" << endl;
+			if(player!=3){
+				gameOverMessage="\nPlayer ";
+				stringstream ss;	//sequence converts num to string 
+				ss << player;
+				gameOverMessage+= ss.str();
+			}
+			else
+				gameOverMessage="CPU";	//for player=3 that is not actual player
+			gameOverMessage+=" wins!\n";
 			return true;
 	}
 	return false;
@@ -294,7 +327,15 @@ bool gameBoard::negDiagonal(int row, int col){
 	}
 	//cout << count;
 	if(count>=4){
-			cout << "\nPlayer " << player << " wins!" << endl;
+			if(player!=3){
+				gameOverMessage="\nPlayer ";
+				stringstream ss;	//sequence converts num to string 
+				ss << player;
+				gameOverMessage+= ss.str();
+			}
+			else
+				gameOverMessage="CPU";	//for player=3 that is not actual player
+			gameOverMessage+=" wins!\n";
 			return true;
 	}
 	return false;
@@ -317,7 +358,7 @@ class Connect4:public gameBoard{
 };
 
 Connect4::Connect4():gameBoard(){
-	
+	player1='R';
 }
 
 Connect4::~Connect4(){
@@ -329,7 +370,13 @@ int main(int argc, char* argv[]){
 	//test
 	Connect4 game1;	//initialize game
 	int col=0;		//initialize to allow into loop
-	int x=1;
+	
+	do{
+		cout	<<	"\n1 or 2 Players?\t";
+		cin 	>> game1.numPlayers;
+	}
+	while (game1.numPlayers!=1 && game1.numPlayers!=2);
+	
 	game1.displayBoard();	//show empty board
 	bool preMoveFull=false;	//save whether column was full before move since it will be updated after
 	while(true){
@@ -341,20 +388,30 @@ int main(int argc, char* argv[]){
 		}
 		col=0;
 		
-		if(game1.gameFinished)
+		if(game1.gameFinished){
+			cout << game1.gameOverMessage;
 			return 1;	//game finished
-
+		}
+		
 		while(col<1 || col>7 || preMoveFull){
-			//cout << "\nColumn? ";
-			//cin  >> col;
-			col=CPUMOVE;
-			preMoveFull=game1.board[col-1].checkFull();	//column doesn't have room loop again
-			game1.makeMove(CPU,col);
+			if(game1.numPlayers==1){	//cpu makes move
+				col=CPUMOVE;
+				preMoveFull=game1.board[col-1].checkFull();	//column doesn't have room loop again
+				game1.makeMove(CPU,col);
+			}
+			else{	//player 2 makes move
+				cout << "\nColumn? ";
+				cin  >> col;
+				preMoveFull=game1.board[col-1].checkFull();	//column doesn't have room loop again
+				game1.makeMove(USER2,col);
+			}
 		}
 		col=0;
 
-		if(game1.gameFinished)
+		if(game1.gameFinished){
+			cout << game1.gameOverMessage;
 			return 1;	//game finished
+		}
 	}
 }
 
