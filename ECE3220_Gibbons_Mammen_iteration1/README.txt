@@ -1,10 +1,6 @@
 Connect 4 Program-How to Use
 
-NOTE: I commented out Lines 6, 7, and second line of displayBoard.
-	Those lines of code are system dependent and did not know what
-	you would be compiling the program on. We compiled on windows, but
-	for linux simply change cls to clear in line 7. It works just as well
-	but we figured we would get rid of prior boards. 
+compile with "g++ Connect4.cpp"
 
 You will be given option of 1 to 2 players
 
