@@ -422,20 +422,31 @@ void Connect4::newGame(){
 }
 
 void Connect4::loadGame(string loadFile){
-	
+	//load data back same way saved
 }
 
 void Connect4::saveGame(string saveFile){
+	FILE *write;
+	write=fopen(saveFile.data(),"w");
+	if(write==NULL){
+		cout << saveFile << " could not be accessed\n";
+	    return;
+	}	
 	
+	//data for connect 4 game
+	
+	cout << saveFile << " has been written\n";
+	fclose(write);
+	return;
 }
 
 void Connect4::HowToPlay(){
 	string filename="Instructions.txt";
 	FILE *read;
 	read=fopen(filename.data(),"r");
-	if(read==NULL)
-	{
-		printf("%s could not be accessed\n",filename.data());
+	
+	if(read==NULL){
+		cout << filename << " could not be accessed\n";
 	    return;
 	}
 	
