@@ -2,6 +2,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 #include <stdlib.h> //rand()
 
@@ -429,8 +430,26 @@ void Connect4::saveGame(string saveFile){
 }
 
 void Connect4::HowToPlay(){
+	string filename="Instructions.txt";
+	FILE *read;
+	read=fopen(filename.data(),"r");
+	if(read==NULL)
+	{
+		printf("%s could not be accessed\n",filename.data());
+	    return;
+	}
 	
+	putchar('\n');
+	char ch;
+	while((ch=fgetc(read))!=EOF)
+		putchar(ch);
+	putchar('\n');
+	
+	fclose(read);
+	
+	return;
 }
+
 //--------------------Main Program----------------------------
 int main(int argc, char* argv[]) {
 	system(ERASE);
