@@ -14,7 +14,7 @@ using namespace std;
 
 Connect4::Connect4() : gameBoard() {
 	menuOption = 3;
-	saveFile = "defaultTest.txt";
+	saveFile = "save.txt";
 }
 
 Connect4::~Connect4() {
@@ -54,14 +54,15 @@ void Connect4::newGame(){
 	displayColor();
 }
 
-void Connect4::loadGame(string loadFile){
+int Connect4::loadGame(string loadFile){
 	ifstream myfile;
 	myfile.open(loadFile, ios::in);
 
 	if (!myfile.is_open()) {
-		cout << loadFile << " could not be accessed\n";
-		return;
+		return 0;
 	}
+
+	myfile >> numPlayers >> playerColor;
 
 	for (int r = 0; r < 6; r++) {
 		for (int c = 0; c < 7; c++) {
@@ -71,7 +72,7 @@ void Connect4::loadGame(string loadFile){
 
 	cout << loadFile << " has been read\n";
 	myfile.close();
-	return;
+	return 1;
 }
 
 void Connect4::saveGame(string saveFile){
@@ -83,6 +84,8 @@ void Connect4::saveGame(string saveFile){
 	    return;
 	}	
 	
+	myfile << numPlayers << " " << playerColor << " ";
+
 	for (int r = 0; r < 6; r++) {
 		for (int c = 0; c < 7; c++) {
 			myfile << board[c].column[5 - r].value << " ";

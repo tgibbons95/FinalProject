@@ -14,7 +14,7 @@ public:
 	void displayNumPlayers();
 	void displayColor();
 	void newGame();			//initialize new board
-	void loadGame(string);	//load from file
+	int loadGame(string);	//load from file
 	void saveGame(string);	//save to file
 	void HowToPlay();		//load from file
 
