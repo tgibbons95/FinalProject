@@ -2,6 +2,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 #include <stdlib.h> //rand()
 
@@ -88,11 +89,13 @@ public:
 	bool fullBoard;	//True if board is full
 	vector<boardColumn> board;
 	bool gameFinished;
-	int numPlayers;
+	int numPlayers;	//1 or 2
+	char playerColor;	//'R' or 'B'
 	string gameOverMessage;
-	//public:
-	gameBoard();
+//public:
+	gameBoard();	//constructors
 	~gameBoard();
+	
 	bool checkFull();	//change full if all columns full
 	void displayBoard();	//print board
 	char symbol(int);
@@ -113,6 +116,7 @@ gameBoard::gameBoard() {
 		board.push_back(current);	//push 7 empty columns to intialize
 	}
 	numPlayers = 1;
+	playerColor='R';
 }
 
 gameBoard::~gameBoard() {
@@ -145,16 +149,21 @@ void gameBoard::displayBoard() {
 
 char gameBoard::symbol(int i) {
 
-	switch (i)
-	{
+	switch (i){
 	case 0:
 		return ' ';
 	case 1:
-		return 'R';
+		return playerColor;
 	case 2:
-		return 'B';
+		if(playerColor=='R')
+			return 'B';
+		else
+			return 'R';
 	case 3:
-		return 'B';
+		if(playerColor=='R')
+			return 'B';
+		else
+			return 'R';
 	}
 	return ('?');
 }
@@ -168,7 +177,9 @@ void gameBoard::makeMove(int player, int column) {
 			board[c].column[r].value = player;	//change that one space
 			board[c].length++;	//one more piece added
 			gameOver(r, c);	//check for game over
-			if (numPlayers == 1 && player == CPU) //display board for next player
+			if (numPlayers == 2) //display board for next player
+				displayBoard();
+			else if(player == CPU)
 				displayBoard();
 			else if (gameFinished) //but display if game is over and cpu doesn't have to go
 				displayBoard();
@@ -351,24 +362,103 @@ bool gameBoard::negDiagonal(int row, int col) {
 class Connect4 :public gameBoard {
 public:
 	//gameBoard mainBoard;
-	char player1;	//'R' or 'B'
-					//public:	
+	
+	
+//public:	
 	Connect4();
 	~Connect4();
 	void displayMenu();
+	void displayNumplayers();
+	void displayColor();
 	void newGame();			//initialize new board
 	void loadGame(string);	//load from file
 	void saveGame(string);	//save to file
 	void HowToPlay();		//load from file
-
+	
+	int menuOption;
+	string saveFile;
 };
 
 Connect4::Connect4() :gameBoard() {
-	player1 = 'R';
+	menuOption=3;
+	saveFile="defaultTest.txt";
 }
 
 Connect4::~Connect4() {
 	//deallocate
+}
+
+void Connect4::displayNumplayers(){
+	do {
+		cout << "\n1 or 2 Players?\t";
+		cin >> numPlayers;
+	} while (numPlayers != 1 && numPlayers != 2);
+}
+
+void Connect4::displayColor(){
+	do {
+		cout << "\nPlayer 1 Color? R or B?\t";
+		cin >> playerColor;
+		playerColor=toupper(playerColor);
+	} while (playerColor != 'R' && playerColor != 'B');
+}
+
+void Connect4::displayMenu(){
+	cout 	<< "\n\t1. New Game"
+			<< "\n\t2. Load Game"
+			<< "\n\t3. How to play\n" << endl;
+			
+	do{
+		cout	<< "Choice:\t";
+		cin		>> menuOption;
+	} while (menuOption < 1 || menuOption > 3);
+}
+
+void Connect4::newGame(){
+	//initialize new game
+	system(ERASE);
+	displayNumplayers();
+	displayColor();
+}
+
+void Connect4::loadGame(string loadFile){
+	//load data back same way saved
+}
+
+void Connect4::saveGame(string saveFile){
+	FILE *write;
+	write=fopen(saveFile.data(),"w");
+	if(write==NULL){
+		cout << saveFile << " could not be accessed\n";
+	    return;
+	}	
+	
+	//data for connect 4 game
+	
+	cout << saveFile << " has been written\n";
+	fclose(write);
+	return;
+}
+
+void Connect4::HowToPlay(){
+	string filename="Instructions.txt";
+	FILE *read;
+	read=fopen(filename.data(),"r");
+	
+	if(read==NULL){
+		cout << filename << " could not be accessed\n";
+	    return;
+	}
+	
+	putchar('\n');
+	char ch;
+	while((ch=fgetc(read))!=EOF)
+		putchar(ch);
+	putchar('\n');
+	
+	fclose(read);
+	
+	return;
 }
 
 //--------------------Main Program----------------------------
@@ -376,43 +466,64 @@ int main(int argc, char* argv[]) {
 	system(ERASE);
 	//test
 	Connect4 game1;	//initialize game
-	int col = 0;		//initialize to allow into loop
-
-	do {
-		cout << "\n1 or 2 Players?\t";
-		cin >> game1.numPlayers;
-	} while (game1.numPlayers != 1 && game1.numPlayers != 2);
-
-	game1.displayBoard();	//show empty board
+	int col = -1;		//initialize to allow into loop
+	
+	while(game1.menuOption==3){	//default constructor sets to 3
+		game1.displayMenu();	//menuOption set to 1-3
+		if(game1.menuOption==3)
+			game1.HowToPlay();
+	}
+	
+	if(game1.menuOption==1)	//new game
+		game1.newGame();
+	else{	//load game
+		string loadFile;
+		cout	<< "\nFile to load: ";
+		cin		>> loadFile;
+		game1.loadGame(loadFile);
+	}
+	
+	game1.displayBoard();	//show board
+	
 	bool preMoveFull = false;	//save whether column was full before move since it will be updated after
 	while (true) {
-		while (col<1 || col>7 || preMoveFull) {
-			cout << "\nColumn? ";
+		while (col<0 || col>7 || preMoveFull) {
+			cout << "\nColumn 1-7? (Enter 0 to save) ";
 			cin >> col;
+			if(col==0){
+				game1.saveGame(game1.saveFile);
+				cout << "\nThanks for playing\n";
+				return 1;
+			}
 			preMoveFull = game1.board[col - 1].checkFull();	//column doesn't have room loop again
 			game1.makeMove(USER1, col);
 		}
-		col = 0;
+		col = -1;
 
 		if (game1.gameFinished) {
 			cout << game1.gameOverMessage;
 			return 1;	//game finished
 		}
 
-		while (col<1 || col>7 || preMoveFull) {
+		while (col<0 || col>7 || preMoveFull) {
 			if (game1.numPlayers == 1) {	//cpu makes move
 				col = CPUMOVE;
 				preMoveFull = game1.board[col - 1].checkFull();	//column doesn't have room loop again
 				game1.makeMove(CPU, col);
 			}
 			else {	//player 2 makes move
-				cout << "\nColumn? ";
+				cout << "\nColumn? (Enter 0 to save) ";
 				cin >> col;
+				if(col==0){
+					game1.saveGame(game1.saveFile);
+					cout << "\nThanks for playing\n";
+					return 1;
+				}
 				preMoveFull = game1.board[col - 1].checkFull();	//column doesn't have room loop again
 				game1.makeMove(USER2, col);
 			}
 		}
-		col = 0;
+		col = -1;
 
 		if (game1.gameFinished) {
 			cout << game1.gameOverMessage;
