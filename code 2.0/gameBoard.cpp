@@ -1,4 +1,4 @@
-#include "headers\gameBoard.h"
+#include "headers/gameBoard.h"
 
 gameBoard::gameBoard() {
 	fullBoard = false;

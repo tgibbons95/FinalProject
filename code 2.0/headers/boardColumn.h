@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "headers/gamePiece.h"
+#include "gamePiece.h"
 
 using namespace std;
 
