@@ -1,0 +1,3 @@
+
+The first player begins by dropping his/her black/red disc into a column of the game board. The two players then alternate turns dropping one of their discs at a time into an unfilled column, until one player achieves four discs in a row vertically, horizontally, or diagonally and wins. If the game board fills before either player achieves four in a row, then the game is a draw.
+
