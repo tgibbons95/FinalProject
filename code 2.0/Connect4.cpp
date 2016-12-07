@@ -63,10 +63,13 @@ int Connect4::loadGame(string loadFile){
 	}
 
 	myfile >> numPlayers >> playerColor;
-
+	
 	for (int r = 0; r < 6; r++) {
 		for (int c = 0; c < 7; c++) {
-			myfile >> board[c].column[5 - r].value;
+			myfile >> board[c].column[5 - r].value;		// set gamePiece values
+			if (board[c].column[5 - r].value != 0) {
+				board[c].length++;						// keep track of how many are in each column
+			}
 		}
 	}
 

@@ -127,11 +127,14 @@ int main(int argc, char* argv[]) {
 
 	while (true) {
 
-		while (col < 0 || col > 7 || preMoveFull) {
+		while (col < 0 || col > 7 || preMoveFull) {		// player 1 move
 			cout << "\nColumn 1-7? (Enter 0 to save) ";
 			do {
 				col = getColumn();
 			} while (col == -1);
+
+			if (col < 0 || col > 7)		// protect from invalid input
+				continue;
 
 			if (col == 0) {
 				game1.saveGame(game1.saveFile);
