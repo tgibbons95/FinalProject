@@ -112,11 +112,9 @@ int main(int argc, char* argv[]) {
 	if (game1.menuOption == 1)	//new game
 		game1.newGame();
 	else {	//load game
-		string loadFile;
-		cout << "\nFile to load: ";
-		cin >> loadFile;
+		string loadFile = "save.txt";
 		while (!game1.loadGame(loadFile)) {
-			cout << "File could not be opened check filename and try again" << endl << "File to load: ";
+			cout << "File " << loadFile << " could not be opened check filename and try again" << endl << "File to load: ";
 			cin >> loadFile;
 		}
 	}
@@ -127,11 +125,15 @@ int main(int argc, char* argv[]) {
 
 	while (true) {
 
-		while (col < 0 || col > 7 || preMoveFull) {
+		while (col < 0 || col > 7 || preMoveFull) {		// player 1 move
+			game1.playerTurn = USER1;
 			cout << "\nColumn 1-7? (Enter 0 to save) ";
 			do {
 				col = getColumn();
 			} while (col == -1);
+
+			if (col < 0 || col > 7)		// protect from invalid input
+				continue;
 
 			if (col == 0) {
 				game1.saveGame(game1.saveFile);
@@ -150,11 +152,13 @@ int main(int argc, char* argv[]) {
 
 		while (col < 0 || col > 7 || preMoveFull) {
 			if (game1.numPlayers == 1) {	//cpu makes move
+				game1.playerTurn = CPU;
 				col = CPUMOVE;
 				preMoveFull = game1.board[col - 1].checkFull();	//column doesn't have room loop again
 				game1.makeMove(CPU, col);
 			}
 			else {	//player 2 makes move
+				game1.playerTurn = USER2;
 				cout << "\nColumn? (Enter 0 to save) ";
 				do {
 					col = getColumn();

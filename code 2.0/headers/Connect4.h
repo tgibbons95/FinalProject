@@ -18,6 +18,7 @@ public:
 	void saveGame(string);	//save to file
 	void HowToPlay();		//load from file
 
+	int playerTurn = 1;
 	int menuOption;
 	string saveFile;
 };
