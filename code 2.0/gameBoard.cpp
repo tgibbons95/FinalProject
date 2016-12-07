@@ -39,6 +39,8 @@ void gameBoard::displayBoard() {
 			<< "  +---+---+---+---+---+---+---+\n";
 	}
 	cout << "    1   2   3   4   5   6   7\n";	//print column nums
+	
+	//cout << "\n It is Player"
 }
 
 char gameBoard::symbol(int i) {
@@ -122,7 +124,7 @@ bool gameBoard::across(int row, int col) {
 	int columnRangeHigh = (col + 3 <= 6) ? col + 3 : 6;
 
 	int count = 0;	//how many in a row
-	int x = 0;		//bump indices
+	int x = 0;		//bump indicesi
 
 	while (col + x <= columnRangeHigh && board[col + x].column[row].value == player) {
 		count++;	//count piece and pieces to right

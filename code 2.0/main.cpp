@@ -1,7 +1,7 @@
 #include "headers/Connect4.h"
 #include <Windows.h>
 
-#define USEARDUINO false	// comment out to compile without arduino support
+#define USEARDUINO true	// comment out to compile without arduino support
 
 #if USEARDUINO == true
 #include "ofArduino.h"		// only need if using arduino
@@ -21,7 +21,7 @@ bool connected = false;  // is the arduino connected?
 //========================================================================
 int checkButtons() {
 
-#if USEARUINO == true
+//#if USEARUINO == true
 	static int prev[4] = { -1 };	// buffer to hold previous states of pins
 	static int curr[4] = { -1 };	// buffer to hold current states of pins
 
@@ -40,9 +40,9 @@ int checkButtons() {
 
 	return -1;		// return -1 if no button was pressed
 
-#else
-	return -1;
-#endif // USEARUINO == true
+//#else
+//	return -1;
+//#endif // USEARUINO == true
 
 }
 
@@ -101,6 +101,7 @@ int main(int argc, char* argv[]) {
 	system(ERASE);
 	//test
 	Connect4 game1;		//initialize game
+	string loadFile;    // name of the file to load save from
 	int col = -1;		//initialize to allow into loop
 
 	while (game1.menuOption == 3) {	//default constructor sets to 3
@@ -108,24 +109,22 @@ int main(int argc, char* argv[]) {
 		if (game1.menuOption == 3)
 			game1.HowToPlay();
 	}
+	//-----------------------------------------------------------------------------------------------------------------------------------------------
 
-	if (game1.menuOption == 1)	//new game
+	if (game1.menuOption == 1) {
 		game1.newGame();
-	else {	//load game
-		string loadFile = "save.txt";
-		while (!game1.loadGame(loadFile)) {
-			cout << "File " << loadFile << " could not be opened check filename and try again" << endl << "File to load: ";
-			cin >> loadFile;
-		}
+		game1.gameState = USER1_MOVE;
+	}
+	else {
+		game1.gameState = LOAD;
 	}
 
 	game1.displayBoard();	//show board
 
-	bool preMoveFull = false;	//save whether column was full before move since it will be updated after
+	while (1) {
 
-	while (true) {
-
-		while (col < 0 || col > 7 || preMoveFull) {		// player 1 move
+		switch (game1.gameState) {		// state machine of the main game loop
+		case USER1_MOVE:
 			game1.playerTurn = USER1;
 			cout << "\nColumn 1-7? (Enter 0 to save) ";
 			do {
@@ -136,48 +135,82 @@ int main(int argc, char* argv[]) {
 				continue;
 
 			if (col == 0) {
-				game1.saveGame(game1.saveFile);
-				cout << "\nThanks for playing\n";
-				return 1;
+				game1.gameState = SAVE;
+				continue;
 			}
-			preMoveFull = game1.board[col - 1].checkFull();	//column doesn't have room loop again
+			if (game1.board[col - 1].checkFull())	// column doesn't have room loop again
+				continue;
+
 			game1.makeMove(USER1, col);
-		}
-		col = -1;
+			if (game1.gameFinished)				// game is done go to finished state
+				game1.gameState = FINISHED;
+			else if (game1.numPlayers == 1)		// should user2 or cpu have next move?
+				game1.gameState = CPU_MOVE;
+			else
+				game1.gameState = USER2_MOVE;
 
-		if (game1.gameFinished) {
-			cout << game1.gameOverMessage;
-			return 1;	//game finished
-		}
+			break;
 
-		while (col < 0 || col > 7 || preMoveFull) {
-			if (game1.numPlayers == 1) {	//cpu makes move
-				game1.playerTurn = CPU;
-				col = CPUMOVE;
-				preMoveFull = game1.board[col - 1].checkFull();	//column doesn't have room loop again
-				game1.makeMove(CPU, col);
+		case USER2_MOVE:
+			game1.playerTurn = USER2;
+			cout << "\nColumn 1-7? (Enter 0 to save) ";
+			do {
+				col = getColumn();
+			} while (col == -1);
+
+			if (col < 0 || col > 7)		// protect from invalid input
+				continue;
+
+			if (col == 0) {
+				game1.gameState = SAVE;
+				continue;
 			}
-			else {	//player 2 makes move
-				game1.playerTurn = USER2;
-				cout << "\nColumn? (Enter 0 to save) ";
-				do {
-					col = getColumn();
-				} while (col == -1);
+			if (game1.board[col - 1].checkFull())	// column doesn't have room loop again
+				continue;
 
-				if (col == 0) {
-					game1.saveGame(game1.saveFile);
-					cout << "\nThanks for playing\n";
-					return 1;
-				}
-				preMoveFull = game1.board[col - 1].checkFull();	//column doesn't have room loop again
-				game1.makeMove(USER2, col);
+			game1.makeMove(USER2, col);		// make the move
+
+			if (game1.gameFinished)
+				game1.gameState = FINISHED;
+			else
+				game1.gameState = USER1_MOVE;
+
+			break;
+
+		case CPU_MOVE:
+			col = CPUMOVE;
+			if (game1.board[col - 1].checkFull())	//column doesn't have room loop again
+				continue;
+
+			game1.makeMove(CPU, col);		// make a move
+
+			if (game1.gameFinished)
+				game1.gameState = FINISHED;
+			else
+				game1.gameState = USER1_MOVE;
+			break;
+
+		case SAVE:
+			game1.saveGame(game1.saveFile);
+			cout << "\nThanks for playing\n";
+			char c;
+			cin >> c;
+			return 1;
+
+		case LOAD:
+			loadFile = "save.txt";
+			while (!game1.loadGame(loadFile)) {
+				cout << "File " << loadFile << " could not be opened check filename and try again" << endl << "File to load: ";
+				cin >> loadFile;
 			}
-		}
-		col = -1;
+			game1.displayBoard();
+			break;
 
-		if (game1.gameFinished) {
+		case FINISHED:
 			cout << game1.gameOverMessage;
-			return 1;	//game finished
+			char ch;
+			cin >> ch;
+			return 1;
 		}
 	}
 }

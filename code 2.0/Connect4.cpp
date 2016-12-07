@@ -63,6 +63,7 @@ int Connect4::loadGame(string loadFile){
 	}
 
 	myfile >> playerTurn >> numPlayers >> playerColor;
+	gameState = (States)playerTurn;
 	
 	for (int r = 0; r < 6; r++) {
 		for (int c = 0; c < 7; c++) {
@@ -75,6 +76,8 @@ int Connect4::loadGame(string loadFile){
 
 	cout << loadFile << " has been read\n";
 	myfile.close();
+
+
 	return 1;
 }
 

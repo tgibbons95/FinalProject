@@ -1,6 +1,8 @@
 #pragma once
 #include "gameBoard.h"
 
+typedef enum state { USER1_MOVE = 1, USER2_MOVE, CPU_MOVE, SAVE, LOAD, FINISHED }States;
+
 //--------------------Connect 4 Game---------------------
 class Connect4 : public gameBoard {
 public:
@@ -18,6 +20,7 @@ public:
 	void saveGame(string);	//save to file
 	void HowToPlay();		//load from file
 
+	States gameState;
 	int playerTurn = 1;
 	int menuOption;
 	string saveFile;
