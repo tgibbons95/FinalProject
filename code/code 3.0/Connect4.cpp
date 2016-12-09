@@ -205,6 +205,10 @@ int Connect4::loadGame(string loadFile){
 	myfile >> playerTurn >> numPlayers >> playerColor;
 	gameState = (States)playerTurn;
 	board.setP1Color(playerColor);
+
+	for (int c = 0; c < 7; c++) {
+		board.zeroColHeight(c);
+	}
 	
 	for (int r = 0; r < 6; r++) {
 		for (int c = 0; c < 7; c++) {
